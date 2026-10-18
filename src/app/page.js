@@ -52,6 +52,7 @@ export default function Home() {
     return data;
   }, []);
 
+  // Load initial data and show loading/error states.
   const loadData = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -73,9 +74,31 @@ export default function Home() {
     }
   }, [request]);
 
+  // Refresh data in the background so changes made by another user/browser
+  // become visible without a manual page reload.
+  const refreshData = useCallback(async () => {
+    try {
+      const [tasksData, usersData] = await Promise.all([
+        request("/api/tasks"),
+        request("/api/users"),
+      ]);
+
+      setTasks(Array.isArray(tasksData) ? tasksData : []);
+      setUsers(Array.isArray(usersData) ? usersData : []);
+    } catch {
+      // Ignore temporary background polling failures to avoid interrupting the UI.
+    }
+  }, [request]);
+
   useEffect(() => {
     loadData();
-  }, [loadData]);
+
+    const pollingId = setInterval(() => {
+      refreshData();
+    }, 5000);
+
+    return () => clearInterval(pollingId);
+  }, [loadData, refreshData]);
 
   async function handleRegister(e) {
     e.preventDefault();
