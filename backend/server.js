@@ -475,6 +475,6 @@ app.get("/api/users/:id/tasks", (req, res) => {
 // =====================================
 // START SERVER
 // =====================================
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Smart Task Manager API listening on port ${PORT}`);
 });
