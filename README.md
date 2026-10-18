@@ -7,7 +7,7 @@ A full-stack task management web application built with Next.js, React, Node.js,
 - Register users and view all registered users
 - Mock login using a registered email address
 - Create, edit, and delete tasks
-- Set a task title, description, priority (Low, Medium, High), and status
+- Set a task title, description, priority (Low, Medium, High), and status (To Do, In Progress, Done)
 - Assign tasks to users
 - Add task dependencies
 - Prevent tasks from being marked Done while dependencies are incomplete
@@ -88,7 +88,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser. Keep both frontend and backend terminals running while using the application.
 
-## Test the Dependency Workflow
+## Task Statuses\n\nTasks start with the status **To Do**. The other available statuses are **In Progress** and **Done**. A task can be marked Done only after all its dependencies are Done.\n\n## Test the Dependency Workflow
 
 1. Register a user and log in using that user's email.
 2. Create a prerequisite task and leave it incomplete.
