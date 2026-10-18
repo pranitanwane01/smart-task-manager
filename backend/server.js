@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
@@ -476,5 +476,5 @@ app.get("/api/users/:id/tasks", (req, res) => {
 // START SERVER
 // =====================================
 app.listen(PORT, () => {
-  console.log(`Backend running at http://localhost:${PORT}`);
+  console.log(`Smart Task Manager API listening on port ${PORT}`);
 });
