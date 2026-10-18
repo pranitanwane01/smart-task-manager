@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-const API = "http://localhost:5001";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 const PRIORITIES = ["Low", "Medium", "High"];
 const STATUSES = ["Pending", "In Progress", "Done"];
@@ -66,7 +66,7 @@ export default function Home() {
       setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (err) {
       setError(
-        `${err.message} Make sure your backend is running on port 5001.`
+        `${err.message} Check that the backend service is running and NEXT_PUBLIC_API_URL is configured correctly.`
       );
     } finally {
       setLoading(false);
