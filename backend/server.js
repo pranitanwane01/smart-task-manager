@@ -3,14 +3,18 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
+// Render supplies PORT in production; use 5001 for local development.
 const PORT = process.env.PORT || 5001;
 
+// Allow the Next.js frontend to call this API and parse JSON request bodies.
 app.use(cors());
 app.use(express.json());
 
 // =====================================
 // IN-MEMORY STORAGE
 // =====================================
+// Assignment requirement: keep data in memory rather than using a permanent database.
+// The arrays reset when this backend process restarts.
 const users = [];
 const tasks = [];
 
@@ -25,6 +29,8 @@ function findTask(taskId) {
 }
 
 // Check whether adding a dependency creates a cycle
+// Walk dependency links recursively. If the target is reached, adding this link
+// would create a cycle and must be rejected.
 function createsCycle(currentId, targetId, visited = new Set()) {
   if (currentId === targetId) return true;
   if (visited.has(currentId)) return false;
@@ -40,6 +46,7 @@ function createsCycle(currentId, targetId, visited = new Set()) {
 }
 
 // Get incomplete dependencies for a task
+// A task is blocked while any prerequisite is missing or is not marked Done.
 function getIncompleteDependencies(task) {
   return task.dependencies
     .map((dependencyId) => findTask(dependencyId))
@@ -60,11 +67,13 @@ app.get("/", (req, res) => {
 // =====================================
 
 // Get all users
+// Return the current in-memory user list for the registration panel and assignment dropdown.
 app.get("/api/users", (req, res) => {
   res.json(users);
 });
 
 // Register user
+// Validate user input, normalize the email, and reject duplicate registrations.
 app.post("/api/users/register", (req, res) => {
   const { name, email } = req.body;
 
@@ -112,6 +121,7 @@ app.post("/api/users/register", (req, res) => {
 });
 
 // Mock login using email
+// Demo authentication only: find an existing user by email, with no password check.
 app.post("/api/users/login", (req, res) => {
   const { email } = req.body;
 
@@ -144,6 +154,7 @@ app.post("/api/users/login", (req, res) => {
 // =====================================
 
 // Get all tasks
+// Return every task with a calculated blocked flag for the frontend.
 app.get("/api/tasks", (req, res) => {
   res.json(
     tasks.map((task) => ({
@@ -154,6 +165,7 @@ app.get("/api/tasks", (req, res) => {
 });
 
 // Create task
+// Validate task fields, assign an ID, and create tasks with the default status To Do.
 app.post("/api/tasks", (req, res) => {
   const {
     title,
@@ -222,6 +234,7 @@ app.post("/api/tasks", (req, res) => {
 // =====================================
 
 // Add dependency: this task depends on another task
+// Add a prerequisite to the selected task after checking IDs and cycle safety.
 app.post("/api/tasks/:id/dependencies", (req, res) => {
   const task = findTask(req.params.id);
   const { dependsOnTaskId } = req.body;
@@ -281,6 +294,7 @@ app.post("/api/tasks/:id/dependencies", (req, res) => {
 });
 
 // Get dependency information for one task
+// Return prerequisite details and the task's current blocked state.
 app.get("/api/tasks/:id/dependencies", (req, res) => {
   const task = findTask(req.params.id);
 
@@ -310,6 +324,7 @@ app.get("/api/tasks/:id/dependencies", (req, res) => {
 // =====================================
 // UPDATE TASK
 // =====================================
+// Update only fields supplied by the client, after validating the complete request.
 app.put("/api/tasks/:id", (req, res) => {
   const task = findTask(req.params.id);
 
@@ -421,6 +436,7 @@ app.put("/api/tasks/:id", (req, res) => {
 // =====================================
 // DELETE TASK
 // =====================================
+// Delete the task and remove its ID from other tasks' dependency lists.
 app.delete("/api/tasks/:id", (req, res) => {
   const taskId = Number(req.params.id);
 
@@ -451,6 +467,7 @@ app.delete("/api/tasks/:id", (req, res) => {
 // =====================================
 // TASKS ASSIGNED TO A USER
 // =====================================
+// Provide the tasks assigned to one registered user (the My Tasks feature).
 app.get("/api/users/:id/tasks", (req, res) => {
   const userId = Number(req.params.id);
 
@@ -475,6 +492,7 @@ app.get("/api/users/:id/tasks", (req, res) => {
 // =====================================
 // START SERVER
 // =====================================
+// Bind to the host and port expected by cloud hosting platforms such as Render.
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Smart Task Manager API listening on port ${PORT}`);
 });
