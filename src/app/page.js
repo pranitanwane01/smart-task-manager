@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 const PRIORITIES = ["Low", "Medium", "High"];
-const STATUSES = ["Pending", "In Progress", "Done"];
+const STATUSES = ["To Do", "In Progress", "Done"];
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
