@@ -200,7 +200,7 @@ app.post("/api/tasks", (req, res) => {
     title: title.trim(),
     description: description.trim(),
     priority,
-    status: "Pending",
+    status: "To Do",
     assignedTo: assignedUserId,
     dependencies: [],
     createdAt: new Date().toISOString(),
@@ -352,7 +352,7 @@ app.put("/api/tasks/:id", (req, res) => {
 
   if (
     status !== undefined &&
-    !["Pending", "In Progress", "Done"].includes(status)
+    !["To Do", "In Progress", "Done"].includes(status)
   ) {
     return res.status(400).json({
       message: "Invalid task status.",
