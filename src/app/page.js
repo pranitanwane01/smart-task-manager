@@ -3,12 +3,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+// Use the deployed API URL in production; fall back to localhost for development.
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 const PRIORITIES = ["Low", "Medium", "High"];
 const STATUSES = ["To Do", "In Progress", "Done"];
 
 export default function Home() {
+  // Main application state received from the backend.
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
@@ -34,6 +36,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
+  // Keep API calls in one helper so JSON handling and HTTP errors are consistent.
   const request = useCallback(async (path, options = {}) => {
     const response = await fetch(`${API}${path}`, {
       ...options,
@@ -100,6 +103,7 @@ export default function Home() {
     return () => clearInterval(pollingId);
   }, [loadData, refreshData]);
 
+  // Register a new user through the API and immediately show the returned user as logged in.
   async function handleRegister(e) {
     e.preventDefault();
     setError("");
@@ -124,6 +128,7 @@ export default function Home() {
     }
   }
 
+  // Mock login checks a registered email; this is not production-grade authentication.
   async function handleLogin(e) {
     e.preventDefault();
     setError("");
@@ -143,6 +148,7 @@ export default function Home() {
     }
   }
 
+  // Clear the task editor after a save or when the user cancels editing.
   function resetForm() {
     setTitle("");
     setDescription("");
@@ -151,6 +157,7 @@ export default function Home() {
     setEditingId(null);
   }
 
+  // The same form supports both creating a task and updating an existing task.
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -192,6 +199,7 @@ export default function Home() {
     }
   }
 
+  // Copy the selected task's values into the form so the user can edit them.
   function editTask(task) {
     setEditingId(task.id);
     setTitle(task.title || "");
@@ -204,6 +212,7 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // The backend validates status changes and rejects Done when dependencies are incomplete.
   async function changeStatus(task, status) {
     setError("");
     setNotice("");
@@ -222,6 +231,7 @@ export default function Home() {
     }
   }
 
+  // Ask for confirmation before permanently removing a task from in-memory backend state.
   async function deleteTask(task) {
     if (!window.confirm(`Delete "${task.title}"?`)) return;
 
@@ -242,6 +252,7 @@ export default function Home() {
     }
   }
 
+  // Add a prerequisite relationship; the backend also checks missing, duplicate, and circular dependencies.
   async function addDependency(e) {
     e.preventDefault();
     setError("");
@@ -289,6 +300,7 @@ export default function Home() {
     (task) => task.blocked === true
   ).length;
 
+  // Apply search, status, priority, and selected view filters to the current task list.
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       const query = search.toLowerCase();
@@ -327,6 +339,7 @@ export default function Home() {
     currentUser,
   ]);
 
+  // Convert an assigned user ID into a readable name for the task card.
   function userName(userId) {
     const user = users.find(
       (item) => Number(item.id) === Number(userId)
@@ -335,6 +348,7 @@ export default function Home() {
     return user ? user.name : "Unassigned";
   }
 
+  // Resolve dependency IDs into task titles to make prerequisites easier to understand.
   function dependencyTitles(task) {
     return (task.dependencies || [])
       .map((id) => tasks.find((item) => item.id === id)?.title)
@@ -799,6 +813,7 @@ export default function Home() {
   );
 }
 
+// Reusable dashboard card for displaying a label and its calculated count.
 function StatCard({ label, value }) {
   return (
     <div className="rounded-xl bg-white p-5 shadow-sm">
